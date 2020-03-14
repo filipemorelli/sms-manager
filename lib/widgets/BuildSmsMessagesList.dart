@@ -3,12 +3,15 @@ import 'package:sms/sms.dart';
 
 class BuildSmsMessagesList extends StatelessWidget {
   final List<SmsThread> listSmsThread;
-  const BuildSmsMessagesList({Key key, @required this.listSmsThread})
+  final ScrollController scrollController;
+  const BuildSmsMessagesList(
+      {Key key, @required this.listSmsThread, this.scrollController})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: scrollController,
       itemCount: listSmsThread.length,
       itemBuilder: (ctx, i) {
         SmsThread smsThread = listSmsThread[i];
