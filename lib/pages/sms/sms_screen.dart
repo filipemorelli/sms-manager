@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
-import 'package:smsmanager/globals/enums.dart';
+import 'package:smsmanager/widgets/BuildSmsMessagesList.dart';
+import 'package:smsmanager/widgets/FloatActionButton.dart';
+import 'package:smsmanager/widgets/SmsPopupMenuButton.dart';
 
 class SmsScreen extends StatefulWidget {
   @override
@@ -9,11 +12,14 @@ class SmsScreen extends StatefulWidget {
 
 class _SmsScreenState extends State<SmsScreen> {
   SmsQuery query;
+  ScrollController scrollController;
+  ValueNotifier<bool> isExtendedFloatActionBar = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
-    query = new SmsQuery();
+    query = SmsQuery();
+    isExtendedFloatActionBar = ValueNotifier<bool>(false);
   }
 
   Future getAllSms() {
@@ -22,136 +28,56 @@ class _SmsScreenState extends State<SmsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Mensages",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scroll) {
+        isExtendedFloatActionBar.value = scroll.metrics.pixels >= 30;
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            "Mensages",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+            ),
           ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.search,
+                color: Colors.black,
+              ),
+              onPressed: () {},
+              tooltip: "Search",
+            ),
+            SmsPopupMenuButton()
+          ],
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.black,
-            ),
-            onPressed: () {},
-            tooltip: "Search",
-          ),
-          PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.black,
-            ),
-            tooltip: "Menu",
-            onSelected: (SmsPopupMenuItemType option) {
-              switch (option) {
-                case SmsPopupMenuItemType.web:
-                  Navigator.pushNamed(context, "settings");
-                  break;
-                case SmsPopupMenuItemType.settings:
-                  Navigator.pushNamed(context, "notFound");
-                  break;
-                default:
-              }
-            },
-            itemBuilder: (ctx) {
-              return [
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.web,
-                  child: Text("Mensagens na web"),
-                ),
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.blocked,
-                  child: Text("Contatos bloqueados"),
-                ),
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.darkmode,
-                  child: Text("Ativar modo escuro"),
-                ),
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.archived,
-                  child: Text("Arquivadas"),
-                ),
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.settings,
-                  child: Text("Configurações"),
-                ),
-                PopupMenuItem(
-                  value: SmsPopupMenuItemType.help,
-                  child: Text("Ajuda e feedback"),
-                ),
-              ];
-            },
-          )
-        ],
-      ),
-      body: SafeArea(
-        bottom: true,
-        child: Scrollbar(
-          child: FutureBuilder<List<SmsThread>>(
-            future: query.getAllThreads,
-            builder: (ctx, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (ctx, i) {
-                  SmsThread smsThread = snapshot.data[i];
-                  return ListTile(
-                    key: Key(smsThread.threadId.toString()),
-                    leading: CircleAvatar(
-                      child: smsThread.contact.fullName != null
-                          ? Text(
-                              smsThread.contact.fullName[0].toUpperCase(),
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
-                            )
-                          : Icon(Icons.person, color: Colors.white),
-                      backgroundColor:
-                          Colors.primaries[i % Colors.primaries.length],
-                    ),
-                    title: Text(
-                      smsThread.contact.fullName != null
-                          ? smsThread.contact.fullName
-                          : smsThread.address,
-                      style: TextStyle(
-                          fontWeight: !smsThread.messages.last.isRead
-                              ? FontWeight.bold
-                              : null),
-                    ),
-                    subtitle: Text(
-                      smsThread.messages[0].body,
-                      maxLines: !smsThread.messages.last.isRead ? 2 : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontWeight: !smsThread.messages.last.isRead
-                              ? FontWeight.bold
-                              : null),
-                    ),
+        body: SafeArea(
+          bottom: true,
+          child: Scrollbar(
+            child: FutureBuilder<List<SmsThread>>(
+              future: query.getAllThreads,
+              builder: (ctx, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
                   );
-                },
-              );
-            },
+                }
+                return BuildSmsMessagesList(
+                  listSmsThread: snapshot.data,
+                  scrollController: scrollController,
+                );
+              },
+            ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(
-          Icons.message,
-          color: Colors.white,
-        ),
-        tooltip: "Nova mensagem",
-        backgroundColor: Colors.blueAccent,
+        floatingActionButton: SmsFloatActionButton(
+            isExtendedFloatActionBar: isExtendedFloatActionBar),
       ),
     );
   }
