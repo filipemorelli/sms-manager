@@ -11,3 +11,18 @@ final ThemeData mainThemData = ThemeData(
     color: Colors.white,
   ),
 );
+
+final smsTextUnreadStyle = TextStyle(
+  color: Colors.black,
+  fontWeight: FontWeight.w400,
+);
+
+final smsTextReadStyle = TextStyle(
+  color: Colors.black,
+  fontWeight: FontWeight.normal,
+);
+
+final circularTextStyle = TextStyle(
+  color: Colors.white,
+  fontSize: 20,
+);
