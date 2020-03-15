@@ -34,12 +34,13 @@ class _SmsScreenState extends State<SmsScreen> {
         return true;
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
           title: Text(
-            "Mensages",
+            "Mensagens",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w400,

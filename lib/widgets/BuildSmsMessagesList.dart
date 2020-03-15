@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/globals/styles.dart';
 
@@ -36,19 +37,25 @@ class BuildSmsMessagesList extends StatelessWidget {
                 ? smsTextReadStyle
                 : smsTextUnreadStyle,
           ),
+          trailing: buildlastDateMessage(smsThread.messages.last.date),
         );
       },
     );
   }
 
-  CircleAvatar buildCircleAvatar(SmsThread smsThread, int i) {
+  Widget buildlastDateMessage(DateTime dateTime) {
+    var format = DateFormat('E');
+    return Text(format.format(dateTime));
+  }
+
+  Widget buildCircleAvatar(SmsThread smsThread, int i) {
     if (smsThread.contact.thumbnail != null) {
       return buildCircleAvatarThumbnail(smsThread);
     }
     return buildCircleAvatarText(smsThread, i);
   }
 
-  CircleAvatar buildCircleAvatarText(SmsThread smsThread, int i) {
+  Widget buildCircleAvatarText(SmsThread smsThread, int i) {
     return CircleAvatar(
       child: smsThread.contact.fullName != null
           ? Text(
@@ -60,7 +67,7 @@ class BuildSmsMessagesList extends StatelessWidget {
     );
   }
 
-  CircleAvatar buildCircleAvatarThumbnail(SmsThread smsThread) {
+  Widget buildCircleAvatarThumbnail(SmsThread smsThread) {
     return CircleAvatar(
       backgroundImage: MemoryImage(smsThread.contact.thumbnail.bytes),
     );

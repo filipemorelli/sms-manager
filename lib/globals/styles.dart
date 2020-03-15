@@ -14,7 +14,7 @@ final ThemeData mainThemData = ThemeData(
 
 final smsTextUnreadStyle = TextStyle(
   color: Colors.black,
-  fontWeight: FontWeight.w400,
+  fontWeight: FontWeight.w500,
 );
 
 final smsTextReadStyle = TextStyle(
