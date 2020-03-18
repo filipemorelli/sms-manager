@@ -26,3 +26,7 @@ final circularTextStyle = TextStyle(
   color: Colors.white,
   fontSize: 20,
 );
+
+final smsDateTextStyle = TextStyle(
+  fontSize: 12,
+);

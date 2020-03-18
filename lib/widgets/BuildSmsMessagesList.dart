@@ -44,8 +44,27 @@ class BuildSmsMessagesList extends StatelessWidget {
   }
 
   Widget buildlastDateMessage(DateTime dateTime) {
-    var format = DateFormat('E');
-    return Text(format.format(dateTime));
+    DateFormat format;
+    String formatDate;
+    if (dateTime.isBefore(DateTime.now().add(Duration(days: -7)))) {
+      format = DateFormat('d MMM');
+      formatDate = format.format(dateTime);
+    } else if (dateTime.isAfter(DateTime.now().add(Duration(
+        hours: -DateTime.now().hour,
+        minutes: -DateTime.now().minute,
+        seconds: -DateTime.now().second,
+        milliseconds: -DateTime.now().millisecond)))) {
+      format = DateFormat('H:m');
+      formatDate = format.format(dateTime);
+    } else {
+      format = DateFormat('E');
+      formatDate = format.format(dateTime);
+    }
+    return Text(
+      formatDate,
+      style: smsDateTextStyle,
+      textAlign: TextAlign.right,
+    );
   }
 
   Widget buildCircleAvatar(SmsThread smsThread, int i) {
