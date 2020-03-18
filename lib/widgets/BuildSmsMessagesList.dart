@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
+import 'package:smsmanager/globals/styles.dart';
 
 class BuildSmsMessagesList extends StatelessWidget {
   final List<SmsThread> listSmsThread;
@@ -15,35 +17,78 @@ class BuildSmsMessagesList extends StatelessWidget {
       itemCount: listSmsThread.length,
       itemBuilder: (ctx, i) {
         SmsThread smsThread = listSmsThread[i];
+        // Image.memory(smsThread.contact.thumbnail.bytes);
         return ListTile(
           key: Key(smsThread.threadId.toString()),
-          leading: CircleAvatar(
-            child: smsThread.contact.fullName != null
-                ? Text(
-                    smsThread.contact.fullName[0].toUpperCase(),
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  )
-                : Icon(Icons.person, color: Colors.white),
-            backgroundColor: Colors.primaries[i % Colors.primaries.length],
-          ),
+          leading: buildCircleAvatar(smsThread, i),
           title: Text(
             smsThread.contact.fullName != null
                 ? smsThread.contact.fullName
                 : smsThread.address,
-            style: TextStyle(
-                fontWeight:
-                    !smsThread.messages.last.isRead ? FontWeight.bold : null),
+            style: smsThread.messages.first.isRead
+                ? smsTextReadStyle
+                : smsTextUnreadStyle,
           ),
           subtitle: Text(
             smsThread.messages[0].body,
-            maxLines: !smsThread.messages.last.isRead ? 2 : 1,
+            maxLines: !smsThread.messages.first.isRead ? 2 : 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontWeight:
-                    !smsThread.messages.last.isRead ? FontWeight.bold : null),
+            style: smsThread.messages.first.isRead
+                ? smsTextReadStyle
+                : smsTextUnreadStyle,
           ),
+          trailing: buildlastDateMessage(smsThread.messages.first.date),
         );
       },
+    );
+  }
+
+  Widget buildlastDateMessage(DateTime dateTime) {
+    DateFormat format;
+    String formatDate;
+    if (dateTime.isBefore(DateTime.now().add(Duration(days: -7)))) {
+      format = DateFormat('d MMM');
+      formatDate = format.format(dateTime);
+    } else if (dateTime.isAfter(DateTime.now().add(Duration(
+        hours: -DateTime.now().hour,
+        minutes: -DateTime.now().minute,
+        seconds: -DateTime.now().second,
+        milliseconds: -DateTime.now().millisecond)))) {
+      format = DateFormat('H:m');
+      formatDate = format.format(dateTime);
+    } else {
+      format = DateFormat('E');
+      formatDate = format.format(dateTime);
+    }
+    return Text(
+      formatDate,
+      style: smsDateTextStyle,
+      textAlign: TextAlign.right,
+    );
+  }
+
+  Widget buildCircleAvatar(SmsThread smsThread, int i) {
+    if (smsThread.contact.thumbnail != null) {
+      return buildCircleAvatarThumbnail(smsThread);
+    }
+    return buildCircleAvatarText(smsThread, i);
+  }
+
+  Widget buildCircleAvatarText(SmsThread smsThread, int i) {
+    return CircleAvatar(
+      child: smsThread.contact.fullName != null
+          ? Text(
+              smsThread.contact.fullName[0].toUpperCase(),
+              style: circularTextStyle,
+            )
+          : Icon(Icons.person, color: Colors.white),
+      backgroundColor: Colors.primaries[i % Colors.primaries.length],
+    );
+  }
+
+  Widget buildCircleAvatarThumbnail(SmsThread smsThread) {
+    return CircleAvatar(
+      backgroundImage: MemoryImage(smsThread.contact.thumbnail.bytes),
     );
   }
 }
