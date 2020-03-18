@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
+import 'package:smsmanager/globals/constants.dart';
 import 'package:smsmanager/globals/styles.dart';
 
 class BuildSmsMessagesList extends StatelessWidget {
@@ -38,6 +39,10 @@ class BuildSmsMessagesList extends StatelessWidget {
                 : smsTextUnreadStyle,
           ),
           trailing: buildlastDateMessage(smsThread.messages.first.date),
+          onTap: () {
+            navigatorKey.currentState
+                .pushNamed("sms-messages", arguments: smsThread);
+          },
         );
       },
     );
