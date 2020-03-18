@@ -25,19 +25,19 @@ class BuildSmsMessagesList extends StatelessWidget {
             smsThread.contact.fullName != null
                 ? smsThread.contact.fullName
                 : smsThread.address,
-            style: smsThread.messages.last.isRead
+            style: smsThread.messages.first.isRead
                 ? smsTextReadStyle
                 : smsTextUnreadStyle,
           ),
           subtitle: Text(
             smsThread.messages[0].body,
-            maxLines: !smsThread.messages.last.isRead ? 2 : 1,
+            maxLines: !smsThread.messages.first.isRead ? 2 : 1,
             overflow: TextOverflow.ellipsis,
-            style: smsThread.messages.last.isRead
+            style: smsThread.messages.first.isRead
                 ? smsTextReadStyle
                 : smsTextUnreadStyle,
           ),
-          trailing: buildlastDateMessage(smsThread.messages.last.date),
+          trailing: buildlastDateMessage(smsThread.messages.first.date),
         );
       },
     );
