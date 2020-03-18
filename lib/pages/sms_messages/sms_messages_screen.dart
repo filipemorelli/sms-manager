@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/bloc/IconSendMessageBloc.dart';
 import 'package:smsmanager/globals/constants.dart';
+import 'package:smsmanager/widgets/SmsMessagePopupMenuButton.dart';
 
 class SmsMessagesScreen extends StatefulWidget {
   final SmsThread smsThread;
@@ -41,6 +40,10 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
               : widget.smsThread.address,
           style: TextStyle(color: Colors.black),
         ),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.phone), onPressed: () {}),
+          SmsMessagePopupMenuButton(smsThread: widget.smsThread)
+        ],
       ),
       body: SafeArea(
         child: Container(
