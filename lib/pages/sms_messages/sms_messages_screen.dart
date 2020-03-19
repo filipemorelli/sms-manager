@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/bloc/IconSendMessageBloc.dart';
 import 'package:smsmanager/globals/constants.dart';
@@ -15,11 +16,21 @@ class SmsMessagesScreen extends StatefulWidget {
 
 class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
   IconSendMessageBloc _streamControllerSend;
+  ScrollController _scrollController;
+  ValueNotifier<bool> _showFloatActionBarNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
     _streamControllerSend = IconSendMessageBloc();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= 150) {
+        _showFloatActionBarNotifier.value = true;
+      } else {
+        _showFloatActionBarNotifier.value = false;
+      }
+    });
   }
 
   @override
@@ -50,15 +61,119 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
           child: Column(
             children: <Widget>[
               Flexible(
-                child: Center(
-                  child: Text("Oii"),
-                ),
+                child: buildListMessages(),
               ),
               buildInput()
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildListMessages() {
+    return Scaffold(
+      body: ListView.builder(
+        controller: _scrollController,
+        padding: EdgeInsets.only(
+          top: spaceSize,
+          right: spaceSize,
+          left: spaceSize,
+        ),
+        itemCount: widget.smsThread.messages.length,
+        reverse: true,
+        itemBuilder: (ctx, index) {
+          SmsMessage message = widget.smsThread.messages[index];
+          return message.address == widget.smsThread.address
+              ? buildLeftContainer(message)
+              : buildRightContainer(message);
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: _showFloatActionBarNotifier,
+        builder: (ctx, value, w) {
+          return value
+              ? Transform.scale(
+                  scale: 0.8,
+                  child: FloatingActionButton.extended(
+                    backgroundColor: Colors.blueGrey.shade800,
+                    icon: Icon(Icons.arrow_downward),
+                    label: Text("See last message"),
+                    onPressed: () {
+                      _scrollController.animateTo(0,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeOut);
+                    },
+                  ),
+                )
+              : SizedBox();
+        },
+      ),
+    );
+  }
+
+  Widget buildLeftContainer(SmsMessage message) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.grey.shade200,
+          ),
+          width: MediaQuery.of(context).size.width * 0.75,
+          margin: EdgeInsets.only(bottom: 3),
+          padding: EdgeInsets.symmetric(horizontal: spaceSize, vertical: 10),
+          child: Text(
+            message.body,
+            style: TextStyle(
+              color: Colors.grey.shade900,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.only(bottom: spaceSize),
+          child: Text(
+            DateFormat('hh:mm a MM/dd/yyyy').format(message.date),
+            style: TextStyle(fontSize: 11),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildRightContainer(SmsMessage message) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.blue.shade100,
+          ),
+          width: MediaQuery.of(context).size.width * 0.75,
+          margin: EdgeInsets.only(bottom: 3),
+          padding: EdgeInsets.symmetric(horizontal: spaceSize, vertical: 10),
+          child: Text(
+            message.body,
+            style: TextStyle(
+              color: Colors.blue.shade800,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.only(bottom: spaceSize),
+          child: Text(
+            DateFormat('hh:mm a MM/dd/yyyy').format(message.dateSent),
+            style: TextStyle(fontSize: 11),
+          ),
+        )
+      ],
     );
   }
 
