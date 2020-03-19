@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/bloc/IconSendMessageBloc.dart';
 import 'package:smsmanager/globals/constants.dart';
+import 'package:smsmanager/widgets/BuildCircularAvatar.dart';
 import 'package:smsmanager/widgets/SmsMessagePopupMenuButton.dart';
 
 class SmsMessagesScreen extends StatefulWidget {
@@ -45,11 +46,19 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
-        title: Text(
-          widget.smsThread.contact.fullName != null
-              ? widget.smsThread.contact.fullName
-              : widget.smsThread.address,
-          style: TextStyle(color: Colors.black),
+        title: Row(
+          children: <Widget>[
+            buildCircleAvatar(widget.smsThread, widget.smsThread.id - 1),
+            Container(
+              margin: EdgeInsets.only(left: 5),
+              child: Text(
+                widget.smsThread.contact.fullName != null
+                    ? widget.smsThread.contact.fullName
+                    : widget.smsThread.address,
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
         ),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.phone), onPressed: () {}),
