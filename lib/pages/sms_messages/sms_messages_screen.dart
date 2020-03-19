@@ -73,21 +73,23 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
 
   Widget buildListMessages() {
     return Scaffold(
-      body: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.only(
-          top: spaceSize,
-          right: spaceSize,
-          left: spaceSize,
+      body: Scrollbar(
+        child: ListView.builder(
+          controller: _scrollController,
+          padding: EdgeInsets.only(
+            top: spaceSize,
+            right: spaceSize,
+            left: spaceSize,
+          ),
+          itemCount: widget.smsThread.messages.length,
+          reverse: true,
+          itemBuilder: (ctx, index) {
+            SmsMessage message = widget.smsThread.messages[index];
+            return message.address == widget.smsThread.address
+                ? buildLeftContainer(message)
+                : buildRightContainer(message);
+          },
         ),
-        itemCount: widget.smsThread.messages.length,
-        reverse: true,
-        itemBuilder: (ctx, index) {
-          SmsMessage message = widget.smsThread.messages[index];
-          return message.address == widget.smsThread.address
-              ? buildLeftContainer(message)
-              : buildRightContainer(message);
-        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: ValueListenableBuilder<bool>(
