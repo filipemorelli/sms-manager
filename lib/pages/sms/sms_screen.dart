@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
+import 'package:smsmanager/bloc/SmsBloc.dart';
 import 'package:smsmanager/widgets/BuildSmsMessagesList.dart';
 import 'package:smsmanager/widgets/FloatActionButton.dart';
 import 'package:smsmanager/widgets/SmsPopupMenuButton.dart';
@@ -18,8 +19,10 @@ class _SmsScreenState extends State<SmsScreen> {
   @override
   void initState() {
     super.initState();
-    query = SmsQuery();
     isExtendedFloatActionBar = ValueNotifier<bool>(false);
+    WidgetsBinding.instance.addPostFrameCallback((duration) {
+      SmsBloc.instance.loadSmsthreads();
+    });
   }
 
   Future getAllSms() {
@@ -34,12 +37,13 @@ class _SmsScreenState extends State<SmsScreen> {
         return true;
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
           title: Text(
-            "Mensages",
+            "Mensagens",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w400,
@@ -60,9 +64,9 @@ class _SmsScreenState extends State<SmsScreen> {
         body: SafeArea(
           bottom: true,
           child: Scrollbar(
-            child: FutureBuilder<List<SmsThread>>(
-              future: query.getAllThreads,
-              builder: (ctx, snapshot) {
+            child: StreamBuilder<List<SmsThread>>(
+              stream: SmsBloc.instance.stream,
+              builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),

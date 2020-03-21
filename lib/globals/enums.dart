@@ -6,3 +6,12 @@ enum SmsPopupMenuItemType {
   settings,
   help,
 }
+
+enum SmsMessagePopupMenuItemType {
+  addContact,
+  info,
+  search,
+  archived,
+  remove,
+  help,
+}
