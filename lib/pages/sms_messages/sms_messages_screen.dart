@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/bloc/IconSendMessageBloc.dart';
 import 'package:smsmanager/globals/constants.dart';
+import 'package:smsmanager/globals/functions.dart';
 import 'package:smsmanager/widgets/BuildCircularAvatar.dart';
 import 'package:smsmanager/widgets/SmsMessagePopupMenuButton.dart';
 
@@ -19,11 +22,17 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
   IconSendMessageBloc _streamControllerSend;
   ScrollController _scrollController;
   ValueNotifier<bool> _showFloatActionBarNotifier = ValueNotifier<bool>(false);
+  ValueNotifier<List<SmsMessage>> _listSmsMessages =
+      ValueNotifier<List<SmsMessage>>(<SmsMessage>[]);
+  TextEditingController _smsTextEditingController = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  SmsSender sender = new SmsSender();
 
   @override
   void initState() {
     super.initState();
     _streamControllerSend = IconSendMessageBloc();
+    _streamControllerSend.changeValue(true);
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= 150) {
@@ -32,6 +41,7 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
         _showFloatActionBarNotifier.value = false;
       }
     });
+    _listSmsMessages.value = widget.smsThread.messages.toList();
   }
 
   @override
@@ -43,6 +53,7 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
@@ -83,20 +94,26 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
   Widget buildListMessages() {
     return Scaffold(
       body: Scrollbar(
-        child: ListView.builder(
-          controller: _scrollController,
-          padding: EdgeInsets.only(
-            top: spaceSize,
-            right: spaceSize,
-            left: spaceSize,
-          ),
-          itemCount: widget.smsThread.messages.length,
-          reverse: true,
-          itemBuilder: (ctx, index) {
-            SmsMessage message = widget.smsThread.messages[index];
-            return message.address == widget.smsThread.address
-                ? buildLeftContainer(message)
-                : buildRightContainer(message);
+        child: ValueListenableBuilder<List<SmsMessage>>(
+          valueListenable: _listSmsMessages,
+          builder: (ctx, listSmsMessage, w) {
+            log("teste", name: "LIST MESSAGES");
+            return ListView.builder(
+              controller: _scrollController,
+              padding: EdgeInsets.only(
+                top: spaceSize,
+                right: spaceSize,
+                left: spaceSize,
+              ),
+              itemCount: listSmsMessage.length,
+              reverse: true,
+              itemBuilder: (ctx, index) {
+                SmsMessage message = listSmsMessage[index];
+                return message.kind == SmsMessageKind.Received
+                    ? buildLeftContainer(message)
+                    : buildRightContainer(message);
+              },
+            );
           },
         ),
       ),
@@ -196,12 +213,17 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
           Flexible(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: spaceSize),
-              child: TextField(
+              child: TextFormField(
                 style: TextStyle(fontSize: 15.0),
                 decoration: InputDecoration.collapsed(
                   hintText: 'Type your message...',
                   hintStyle: TextStyle(color: Colors.grey),
                 ),
+                textInputAction: TextInputAction.newline,
+                keyboardType: TextInputType.multiline,
+                minLines: 1,
+                maxLines: 2,
+                controller: _smsTextEditingController,
                 onChanged: (value) =>
                     _streamControllerSend.changeValue(value.isEmpty),
               ),
@@ -211,14 +233,34 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
           // Button send message
           StreamBuilder<bool>(
             stream: _streamControllerSend.stream,
-            initialData: false,
+            initialData: true,
             builder: (context, snapshot) {
               return Container(
                 margin: EdgeInsets.symmetric(horizontal: 8.0),
                 child: IconButton(
                   icon: Icon(Icons.send,
                       color: snapshot.data ? Colors.grey : Colors.blue),
-                  onPressed: () {},
+                  onPressed: snapshot.data
+                      ? null
+                      : () async {
+                          var smsMessage = SmsMessage(widget.smsThread.address,
+                              _smsTextEditingController.value.text,
+                              date: DateTime.now(),
+                              dateSent: DateTime.now(),
+                              threadId: widget.smsThread.threadId,
+                              read: true,
+                              kind: SmsMessageKind.Sent);
+                          try {
+                            await sender.sendSms(smsMessage);
+                            widget.smsThread.addNewMessage(smsMessage);
+                            _listSmsMessages.value = widget.smsThread.messages;
+                            _smsTextEditingController.clear();
+                          } catch (e) {
+                            showToast(
+                                scaffoldKey: _scaffoldKey,
+                                text: "We can`t send your message.");
+                          }
+                        },
                 ),
               );
             },
