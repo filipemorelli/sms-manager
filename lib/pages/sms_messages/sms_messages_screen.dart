@@ -8,6 +8,7 @@ import 'package:smsmanager/globals/constants.dart';
 import 'package:smsmanager/globals/functions.dart';
 import 'package:smsmanager/widgets/BuildCircularAvatar.dart';
 import 'package:smsmanager/widgets/SmsMessagePopupMenuButton.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SmsMessagesScreen extends StatefulWidget {
   final SmsThread smsThread;
@@ -86,7 +87,10 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
           ],
         ),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.phone), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.phone),
+            onPressed: callToContact,
+          ),
           SmsMessagePopupMenuButton(smsThread: widget.smsThread)
         ],
       ),
@@ -103,6 +107,10 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
         ),
       ),
     );
+  }
+
+  void callToContact() async {
+    await launch("tel:${widget.smsThread.address}");
   }
 
   Widget buildListMessages() {
