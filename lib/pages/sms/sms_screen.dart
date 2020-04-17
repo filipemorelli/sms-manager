@@ -6,6 +6,8 @@ import 'package:smsmanager/widgets/BuildSmsMessagesList.dart';
 import 'package:smsmanager/widgets/FloatActionButton.dart';
 import 'package:smsmanager/widgets/SmsPopupMenuButton.dart';
 
+import '../../bloc/SmsBloc.dart';
+
 class SmsScreen extends StatefulWidget {
   @override
   _SmsScreenState createState() => _SmsScreenState();
@@ -63,20 +65,25 @@ class _SmsScreenState extends State<SmsScreen> {
         ),
         body: SafeArea(
           bottom: true,
-          child: Scrollbar(
-            child: StreamBuilder<List<SmsThread>>(
-              stream: SmsBloc.instance.stream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(),
+          child: RefreshIndicator(
+            onRefresh: () {
+              return SmsBloc.instance.loadSmsthreads();
+            },
+            child: Scrollbar(
+              child: StreamBuilder<List<SmsThread>>(
+                stream: SmsBloc.instance.stream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  return BuildSmsMessagesList(
+                    listSmsThread: snapshot.data,
+                    scrollController: scrollController,
                   );
-                }
-                return BuildSmsMessagesList(
-                  listSmsThread: snapshot.data,
-                  scrollController: scrollController,
-                );
-              },
+                },
+              ),
             ),
           ),
         ),
