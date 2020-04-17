@@ -14,12 +14,12 @@ class SmsScreen extends StatefulWidget {
 class _SmsScreenState extends State<SmsScreen> {
   SmsQuery query;
   ScrollController scrollController;
-  ValueNotifier<bool> isExtendedFloatActionBar = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isExtendedFloatActionBar = ValueNotifier<bool>(true);
 
   @override
   void initState() {
     super.initState();
-    isExtendedFloatActionBar = ValueNotifier<bool>(false);
+    isExtendedFloatActionBar = ValueNotifier<bool>(true);
     WidgetsBinding.instance.addPostFrameCallback((duration) {
       SmsBloc.instance.loadSmsthreads();
     });
@@ -33,7 +33,7 @@ class _SmsScreenState extends State<SmsScreen> {
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: (scroll) {
-        isExtendedFloatActionBar.value = scroll.metrics.pixels >= 30;
+        isExtendedFloatActionBar.value = scroll.metrics.pixels <= 30;
         return true;
       },
       child: Scaffold(
@@ -43,7 +43,7 @@ class _SmsScreenState extends State<SmsScreen> {
           elevation: 0,
           centerTitle: true,
           title: Text(
-            "Mensagens",
+            "Messages",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w400,
@@ -81,7 +81,8 @@ class _SmsScreenState extends State<SmsScreen> {
           ),
         ),
         floatingActionButton: SmsFloatActionButton(
-            isExtendedFloatActionBar: isExtendedFloatActionBar),
+          isExtendedFloatActionBar: isExtendedFloatActionBar,
+        ),
       ),
     );
   }

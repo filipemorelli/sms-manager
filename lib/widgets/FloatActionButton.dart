@@ -21,8 +21,8 @@ class SmsFloatActionButton extends StatelessWidget {
                   Icons.message,
                   color: Colors.white,
                 ),
-                label: Text("Nova mensagem"),
-                tooltip: "Nova mensagem",
+                label: Text("Start Chat"),
+                tooltip: "Start Chat",
                 backgroundColor: Colors.blueAccent)
             : FloatingActionButton(
                 onPressed: () {},
@@ -30,7 +30,7 @@ class SmsFloatActionButton extends StatelessWidget {
                   Icons.message,
                   color: Colors.white,
                 ),
-                tooltip: "Nova mensagem",
+                tooltip: "Start Chat",
                 backgroundColor: Colors.blueAccent,
               );
       },

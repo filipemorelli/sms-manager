@@ -40,23 +40,23 @@ class SmsMessagePopupMenuButton extends StatelessWidget {
     List<PopupMenuItem<SmsMessagePopupMenuItemType>> list = [
       PopupMenuItem(
         value: SmsMessagePopupMenuItemType.info,
-        child: Text("Informações"),
+        child: Text("Information"),
       ),
       PopupMenuItem(
         value: SmsMessagePopupMenuItemType.search,
-        child: Text("Pesquisar"),
+        child: Text("Search"),
       ),
       PopupMenuItem(
         value: SmsMessagePopupMenuItemType.archived,
-        child: Text("Arquivar"),
+        child: Text("Archived"),
       ),
       PopupMenuItem(
         value: SmsMessagePopupMenuItemType.remove,
-        child: Text("Excluir"),
+        child: Text("Remove"),
       ),
       PopupMenuItem(
         value: SmsMessagePopupMenuItemType.help,
-        child: Text("Ajuda e feedback"),
+        child: Text("Help and feedback"),
       ),
     ];
     if (this.smsThread.contact.fullName == null) {
@@ -64,7 +64,7 @@ class SmsMessagePopupMenuButton extends StatelessWidget {
         0,
         PopupMenuItem(
           value: SmsMessagePopupMenuItemType.addContact,
-          child: Text("Adicionar Contato"),
+          child: Text("Add Contact"),
         ),
       );
     }

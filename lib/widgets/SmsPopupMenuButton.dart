@@ -29,27 +29,27 @@ class SmsPopupMenuButton extends StatelessWidget {
         return [
           PopupMenuItem(
             value: SmsPopupMenuItemType.web,
-            child: Text("Mensagens na web"),
+            child: Text("Messages in web"),
           ),
           PopupMenuItem(
             value: SmsPopupMenuItemType.blocked,
-            child: Text("Contatos bloqueados"),
+            child: Text("Blocked Contacts"),
           ),
           PopupMenuItem(
             value: SmsPopupMenuItemType.darkmode,
-            child: Text("Ativar modo escuro"),
+            child: Text("Active dark mode"),
           ),
           PopupMenuItem(
             value: SmsPopupMenuItemType.archived,
-            child: Text("Arquivadas"),
+            child: Text("Archived"),
           ),
           PopupMenuItem(
             value: SmsPopupMenuItemType.settings,
-            child: Text("Configurações"),
+            child: Text("Settings"),
           ),
           PopupMenuItem(
             value: SmsPopupMenuItemType.help,
-            child: Text("Ajuda e feedback"),
+            child: Text("Help and feedback"),
           ),
         ];
       },
