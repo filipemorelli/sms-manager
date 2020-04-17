@@ -14,6 +14,15 @@ class BuildSmsMessagesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (listSmsThread.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 50,
+        alignment: Alignment.center,
+        child: Text("No found SMS!", style: TextStyle(fontSize: 18)),
+      );
+    }
+
     return ListView.builder(
       controller: scrollController,
       itemCount: listSmsThread.length,
