@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 import 'package:smsmanager/globals/enums.dart';

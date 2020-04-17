@@ -27,6 +27,7 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
   TextEditingController _smsTextEditingController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   SmsSender sender = new SmsSender();
+  SmsReceiver receiver = new SmsReceiver();
 
   @override
   void initState() {
@@ -42,6 +43,19 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
       }
     });
     _listSmsMessages.value = widget.smsThread.messages.toList();
+    updateChatMessages();
+  }
+
+  updateChatMessages() {
+    receiver.onSmsReceived.asBroadcastStream().listen((smsMessage) async {
+      if (widget.smsThread.threadId == smsMessage.threadId) {
+        var newSmsThread = await SmsQuery().queryThreads(
+          [widget.smsThread.threadId],
+          kinds: [SmsQueryKind.Inbox, SmsQueryKind.Sent],
+        );
+        _listSmsMessages.value = newSmsThread[0].messages;
+      }
+    });
   }
 
   @override
@@ -97,7 +111,6 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
         child: ValueListenableBuilder<List<SmsMessage>>(
           valueListenable: _listSmsMessages,
           builder: (ctx, listSmsMessage, w) {
-            log("teste", name: "LIST MESSAGES");
             return ListView.builder(
               controller: _scrollController,
               padding: EdgeInsets.only(
@@ -240,16 +253,17 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
                 child: IconButton(
                   icon: Icon(Icons.send,
                       color: snapshot.data ? Colors.grey : Colors.blue),
-                  onPressed: snapshot.data
-                      ? null
-                      : () async {
-                          var smsMessage = SmsMessage(widget.smsThread.address,
-                              _smsTextEditingController.value.text,
-                              date: DateTime.now(),
-                              dateSent: DateTime.now(),
-                              threadId: widget.smsThread.threadId,
-                              read: true,
-                              kind: SmsMessageKind.Sent);
+                  onPressed: !snapshot.data
+                      ? () async {
+                          var smsMessage = SmsMessage(
+                            widget.smsThread.address,
+                            _smsTextEditingController.value.text,
+                            kind: SmsMessageKind.Sent,
+                            threadId: widget.smsThread.threadId,
+                            dateSent: DateTime.now(),
+                            date: DateTime.now(),
+                            read: true,
+                          );
                           try {
                             await sender.sendSms(smsMessage);
                             widget.smsThread.addNewMessage(smsMessage);
@@ -257,10 +271,12 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
                             _smsTextEditingController.clear();
                           } catch (e) {
                             showToast(
-                                scaffoldKey: _scaffoldKey,
-                                text: "We can`t send your message.");
+                              scaffoldKey: _scaffoldKey,
+                              text: "We can`t send your message.",
+                            );
                           }
-                        },
+                        }
+                      : null,
                 ),
               );
             },
