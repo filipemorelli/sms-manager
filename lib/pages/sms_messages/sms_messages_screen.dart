@@ -78,9 +78,7 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
             Container(
               margin: EdgeInsets.only(left: 5),
               child: Text(
-                widget.smsThread.contact.fullName != null
-                    ? widget.smsThread.contact.fullName
-                    : widget.smsThread.address,
+                getContactTitle(),
                 style: TextStyle(color: Colors.black),
               ),
             ),
@@ -89,6 +87,7 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.phone),
+            tooltip: "Call to ${getContactTitle()}",
             onPressed: callToContact,
           ),
           SmsMessagePopupMenuButton(smsThread: widget.smsThread)
@@ -107,6 +106,12 @@ class _SmsMessagesScreenState extends State<SmsMessagesScreen> {
         ),
       ),
     );
+  }
+
+  String getContactTitle() {
+    return widget.smsThread.contact.fullName != null
+        ? widget.smsThread.contact.fullName
+        : widget.smsThread.address;
   }
 
   void callToContact() async {
